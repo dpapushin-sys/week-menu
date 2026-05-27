@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Интерактивное меню на неделю — 3 человека</title>
+<style>
+:root {
+  --bg: #f5f5f7;
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --line: rgba(0,0,0,.10);
+  --panel: rgba(255,255,255,.72);
+  --panel-strong: rgba(255,255,255,.92);
+  --blue: #007aff;
+  --green: #34c759;
+  --orange: #ff9500;
+  --red: #ff3b30;
+  --shadow: 0 30px 70px rgba(0,0,0,.12);
+  --radius: 30px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin:0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--ink); background:
+    radial-gradient(circle at 10% 0%, rgba(0,122,255,.20), transparent 30%),
+    radial-gradient(circle at 90% 8%, rgba(52,199,89,.22), transparent 28%),
+    linear-gradient(180deg, #fbfbfd 0%, #f5f5f7 50%, #ededf2 100%);
+  min-height:100vh;
+}
+body.dark {
+  --bg: #07080a; --ink: #f5f5f7; --muted:#a1a1a6; --line: rgba(255,255,255,.14);
+  --panel: rgba(22,24,29,.62); --panel-strong: rgba(28,30,36,.88); --shadow: 0 30px 80px rgba(0,0,0,.48);
+  background:
+    radial-gradient(circle at 8% 5%, rgba(0,122,255,.28), transparent 32%),
+    radial-gradient(circle at 95% 0%, rgba(255,149,0,.16), transparent 28%),
+    linear-gradient(180deg, #050507 0%, #111318 60%, #07080a 100%);
+}
+a { color: inherit; }
+.hero {
+  min-height: 86vh; padding: 32px min(6vw, 88px); display:grid; align-items:center;
+  position: relative; overflow:hidden;
+}
+.nav {
+  position: sticky; top: 14px; z-index: 40; margin: 14px auto 0; width: min(1120px, calc(100% - 28px));
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding: 10px 12px; border:1px solid var(--line); border-radius: 999px;
+  background: var(--panel); backdrop-filter: blur(28px) saturate(180%); box-shadow: 0 10px 40px rgba(0,0,0,.08);
+}
+.nav .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.03em; }
+.apple-dot { width: 28px; height:28px; border-radius: 50%; background: conic-gradient(from 190deg, #007aff, #34c759, #ffcc00, #ff3b30, #af52de, #007aff); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); }
+.navlinks { display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.nav button, .nav a {
+  border:0; text-decoration:none; padding:9px 13px; border-radius:999px; background:transparent; color:var(--muted); font-weight:650; cursor:pointer;
+}
+.nav button:hover, .nav a:hover { background:rgba(127,127,127,.12); color:var(--ink); }
+.hero-grid { display:grid; grid-template-columns: 1.05fr .95fr; gap:min(5vw,56px); width:min(1180px,100%); margin:0 auto; align-items:center; }
+.eyebrow { color:var(--blue); font-weight:800; letter-spacing:.08em; text-transform:uppercase; font-size:13px; }
+h1 { font-size: clamp(48px, 8vw, 106px); line-height:.92; letter-spacing:-.07em; margin: 12px 0 22px; }
+.hero p { font-size: clamp(18px, 2.2vw, 26px); color:var(--muted); line-height:1.35; max-width: 720px; }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:28px; }
+.btn {
+  appearance:none; border:1px solid var(--line); border-radius:999px; padding:13px 18px; font-weight:760; cursor:pointer;
+  background: var(--panel-strong); color:var(--ink); box-shadow: 0 12px 28px rgba(0,0,0,.08); text-decoration:none; display:inline-flex; align-items:center; gap:9px;
+}
+.btn.primary { background: #007aff; color:white; border-color:#007aff; }
+.btn.green { background: #34c759; color:white; border-color:#34c759; }
+.btn:active { transform: translateY(1px); }
+.device {
+  border-radius: 46px; padding: 14px; background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(255,255,255,.34));
+  box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.42); transform: rotate(1.3deg);
+}
+body.dark .device { background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.04)); }
+.device-inner { border-radius: 34px; overflow:hidden; background:#111; min-height: 560px; position:relative; }
+.device-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.1) contrast(1.02); opacity:.88; }
+.device-scrim { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.75)); }
+.device-card { position:absolute; left:22px; right:22px; bottom:22px; border-radius:26px; padding:18px; background:rgba(255,255,255,.16); backdrop-filter:blur(20px); color:white; border:1px solid rgba(255,255,255,.25); }
+.device-card h2 { margin:0 0 8px; font-size:30px; letter-spacing:-.05em; }
+.metrics { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-top:16px; }
+.metric { border:1px solid rgba(255,255,255,.2); border-radius:18px; padding:12px; background:rgba(255,255,255,.12); }
+.metric b { display:block; font-size:22px; }
+.metric span { font-size:12px; opacity:.78; }
+.section { width:min(1180px, calc(100% - 36px)); margin: 0 auto 80px; }
+.section-title { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:18px; }
+.section-title h2 { margin:0; font-size: clamp(34px, 5vw, 64px); letter-spacing:-.06em; }
+.section-title p { margin:0; color:var(--muted); max-width:520px; line-height:1.4; }
+.kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; margin-bottom:18px; }
+.kpi { background:var(--panel); backdrop-filter: blur(22px); border:1px solid var(--line); border-radius:26px; padding:20px; box-shadow:0 18px 44px rgba(0,0,0,.07); }
+.kpi span { color:var(--muted); font-size:13px; font-weight:700; }
+.kpi b { display:block; font-size:30px; letter-spacing:-.05em; margin-top:6px; }
+.toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.toolbar-left, .toolbar-right { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+input[type="search"], select {
+  min-height:42px; border:1px solid var(--line); border-radius:16px; padding:9px 12px; color:var(--ink); background:var(--panel-strong); outline:none; font:inherit; font-weight:650;
+}
+input[type="search"] { min-width: min(320px, 100%); }
+.plan-grid { display:grid; grid-template-columns: repeat(7, minmax(220px, 1fr)); gap:14px; overflow-x:auto; padding-bottom:10px; }
+.day { min-width:220px; background: var(--panel); border:1px solid var(--line); border-radius:28px; padding:14px; backdrop-filter: blur(22px); box-shadow: 0 18px 44px rgba(0,0,0,.06); }
+.day h3 { margin:4px 6px 14px; font-size:22px; letter-spacing:-.045em; }
+.meal-card { border-radius:22px; overflow:hidden; background:var(--panel-strong); border:1px solid var(--line); margin-bottom:12px; box-shadow:0 14px 28px rgba(0,0,0,.06); }
+.meal-photo { height:122px; background-size:cover; background-position:center; position:relative; }
+.meal-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 30%, rgba(0,0,0,.55)); }
+.meal-chip { position:absolute; left:10px; bottom:10px; z-index:1; color:white; font-size:12px; font-weight:800; padding:6px 9px; border-radius:999px; background:rgba(0,0,0,.38); backdrop-filter: blur(12px); }
+.meal-body { padding:12px; }
+.meal-body select { width:100%; margin-bottom:8px; font-size:13px; border-radius:14px; }
+.rowline { display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-size:12px; font-weight:750; margin-top:8px; }
+.rowline b { color:var(--ink); }
+.focus { display:grid; grid-template-columns: .96fr 1.04fr; gap:18px; align-items:stretch; }
+.focus-img { min-height:420px; border-radius:34px; background-size:cover; background-position:center; box-shadow: var(--shadow); position:relative; overflow:hidden; border:1px solid var(--line); }
+.focus-img::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.68)); }
+.focus-label { position:absolute; left:22px; bottom:22px; right:22px; color:white; z-index:1; }
+.focus-label h3 { font-size:42px; line-height:.96; letter-spacing:-.06em; margin: 8px 0; }
+.focus-panel { background: var(--panel); border:1px solid var(--line); border-radius:34px; padding:22px; backdrop-filter:blur(22px); box-shadow:0 22px 60px rgba(0,0,0,.07); }
+.pills { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 18px; }
+.pill { padding:8px 10px; border-radius:999px; background:rgba(127,127,127,.12); color:var(--muted); font-weight:750; font-size:13px; }
+.ingredients { display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:12px; }
+.ing { padding:10px 11px; border-radius:16px; border:1px solid var(--line); background:var(--panel-strong); font-size:13px; }
+.ing b { display:block; }
+ol.steps { margin:10px 0 0; padding-left:22px; color:var(--muted); line-height:1.55; }
+ol.steps li { margin-bottom:7px; }
+.shopping-wrap { background:var(--panel); border:1px solid var(--line); border-radius:34px; padding:14px; backdrop-filter:blur(22px); box-shadow:0 22px 60px rgba(0,0,0,.07); overflow:hidden; }
+table { width:100%; border-collapse:separate; border-spacing:0; }
+th { text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); padding:13px 10px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--panel-strong); backdrop-filter:blur(20px); z-index:1; }
+td { padding:13px 10px; border-bottom:1px solid var(--line); vertical-align:top; font-size:14px; }
+tr:hover td { background:rgba(127,127,127,.08); }
+.table-scroll { max-height:680px; overflow:auto; border-radius:24px; }
+.cat { font-weight:800; font-size:12px; color:var(--blue); }
+.money { font-variant-numeric: tabular-nums; font-weight:800; }
+.recipes-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+.recipe-card { background:var(--panel); border:1px solid var(--line); border-radius:30px; overflow:hidden; backdrop-filter:blur(22px); box-shadow: 0 18px 44px rgba(0,0,0,.07); cursor:pointer; transition:.25s transform, .25s box-shadow; }
+.recipe-card:hover { transform: translateY(-4px); box-shadow:0 28px 60px rgba(0,0,0,.12); }
+.recipe-img { height:200px; background-size:cover; background-position:center; }
+.recipe-body { padding:17px; }
+.recipe-body h3 { margin:0; font-size:21px; letter-spacing:-.045em; }
+.recipe-body p { color:var(--muted); line-height:1.4; font-size:14px; }
+.instructions { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+.instruction-card { background:var(--panel); border:1px solid var(--line); border-radius:30px; padding:22px; backdrop-filter:blur(22px); box-shadow:0 18px 44px rgba(0,0,0,.07); }
+.instruction-card h3 { margin-top:0; font-size:24px; letter-spacing:-.045em; }
+.instruction-card p, .instruction-card li { color:var(--muted); line-height:1.55; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:22px; z-index:100; }
+.modal.show { display:flex; }
+.modal-card { width:min(980px,100%); max-height:92vh; overflow:auto; background:var(--bg); color:var(--ink); border-radius:34px; box-shadow:0 40px 110px rgba(0,0,0,.35); border:1px solid var(--line); }
+.modal-hero { height:330px; background-size:cover; background-position:center; position:relative; }
+.modal-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent, rgba(0,0,0,.72)); }
+.modal-title { position:absolute; left:24px; right:72px; bottom:20px; color:white; z-index:1; }
+.modal-title h2 { margin:0; font-size:44px; line-height:1; letter-spacing:-.06em; }
+.close { position:absolute; right:18px; top:18px; z-index:2; width:42px; height:42px; border-radius:50%; border:0; background:rgba(255,255,255,.24); color:white; font-size:24px; cursor:pointer; backdrop-filter:blur(18px); }
+.modal-content { padding:24px; display:grid; grid-template-columns: .82fr 1.18fr; gap:20px; }
+.footer { width:min(1180px, calc(100% - 36px)); margin: 40px auto; padding:24px; border-radius:30px; border:1px solid var(--line); background:var(--panel); backdrop-filter:blur(22px); color:var(--muted); font-size:13px; line-height:1.5; }
+.footer a { color:var(--blue); }
+.toast { position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; transition:.24s; z-index:120; background:var(--panel-strong); border:1px solid var(--line); border-radius:999px; padding:12px 16px; box-shadow:var(--shadow); font-weight:750; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.hidden { display:none !important; }
+@media (max-width: 980px) {
+  .hero-grid, .focus, .modal-content { grid-template-columns:1fr; }
+  .device-inner { min-height: 420px; }
+  .kpis { grid-template-columns: repeat(2,1fr); }
+  .recipes-grid, .instructions { grid-template-columns:1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .hero { padding:24px 18px; }
+  .nav { position:relative; top:auto; border-radius:24px; align-items:flex-start; }
+  .navlinks { display:none; }
+  .kpis, .recipes-grid, .instructions, .ingredients { grid-template-columns:1fr; }
+  .section { width: calc(100% - 24px); }
+  .focus-img { min-height:300px; }
+  .focus-label h3, .modal-title h2 { font-size:32px; }
+  td:nth-child(4), th:nth-child(4), td:nth-child(8), th:nth-child(8) { display:none; }
+}
+@media print {
+  .nav, .hero, .toolbar, .recipes-grid, .instructions, .footer, .modal, .toast { display:none !important; }
+  body { background:white; color:black; }
+  .section { width:100%; margin:0 0 18px; }
+  .shopping-wrap, .kpi, .day, .meal-card { box-shadow:none; border:1px solid #ddd; background:white; }
+  .plan-grid { display:grid; grid-template-columns: repeat(2, 1fr); overflow:visible; }
+}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Навигация">
+  <div class="brand"><span class="apple-dot"></span><span>Меню × Глобус</span></div>
+  <div class="navlinks">
+    <a href="#plan">План</a><a href="#shopping">Закупка</a><a href="#recipes">Рецепты</a><a href="#howto">Инструкция</a>
+    <button id="themeBtn" type="button">Тёмный режим</button>
+  </div>
+</nav>
+<header class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">Интерактивная версия .html</div>
+      <h1>Недельное меню как презентация.</h1>
+      <p>Выбирайте приём пищи и блюдо — карточки, стоимость, КБЖУ и список закупки пересчитываются сразу. Данные по продуктам и ценам перенесены из Excel-файла, рассчитано на 3 человек.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#plan">Открыть план</a>
+        <a class="btn" href="#recipes">Смотреть рецепты</a>
+        <button class="btn green" id="copyBtn" type="button">Скопировать закупку</button>
+      </div>
+    </div>
+    <div class="device" aria-hidden="true">
+      <div class="device-inner">
+        <img class="device-img" src="https://static.1000.menu/res/380/img/content-v2/18/ef/68146/ryba-zapechennaya-s-kartofelem-v-duxovke_1663672406_14_max.jpg" alt="" />
+        <div class="device-scrim"></div>
+        <div class="device-card">
+          <div class="eyebrow" style="color:#fff; opacity:.86">Сегодня на ужин</div>
+          <h2>Рыба с картофелем и салатом</h2>
+          <div class="metrics">
+            <div class="metric"><b id="heroBudget">—</b><span>закупка</span></div>
+            <div class="metric"><b id="heroMeals">28</b><span>приёмов пищи</span></div>
+            <div class="metric"><b id="heroAvg">—</b><span>ккал/день</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="section" id="plan">
+    <div class="section-title">
+      <div><div class="eyebrow">01 / План</div><h2>Меню на неделю</h2></div>
+      <p>В каждой карточке есть зависимые списки: поменяйте приём пищи, и список блюд перестроится под него. Выбор блюда сразу меняет фото, цену и закупку.</p>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span>Стоимость блюд</span><b id="kpiDishCost">—</b></div>
+      <div class="kpi"><span>Стоимость упаковок</span><b id="kpiPackCost">—</b></div>
+      <div class="kpi"><span>Средние ккал/день/чел</span><b id="kpiKcal">—</b></div>
+      <div class="kpi"><span>Средний белок/день/чел</span><b id="kpiProtein">—</b></div>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="btn" type="button" id="resetBtn">Вернуть исходное меню</button>
+        <button class="btn" type="button" onclick="window.print()">Печать / PDF</button>
+      </div>
+      <div class="toolbar-right">
+        <select id="focusSelect" aria-label="Фокусное блюдо"></select>
+      </div>
+    </div>
+    <div class="plan-grid" id="planGrid"></div>
+  </section>
+
+  <section class="section" id="focus">
+    <div class="section-title">
+      <div><div class="eyebrow">02 / Фокус</div><h2>Стоимость блюда</h2></div>
+      <p>Выберите любое блюдо в выпадающем списке выше — здесь появится состав, инструкция и ориентировочная стоимость продуктов на 3 человек.</p>
+    </div>
+    <div class="focus">
+      <div class="focus-img" id="focusImg"><div class="focus-label"><div class="eyebrow" style="color:#fff">Блюдо</div><h3 id="focusName">—</h3><div id="focusComment"></div></div></div>
+      <div class="focus-panel">
+        <div class="pills" id="focusPills"></div>
+        <h3 style="font-size:28px;letter-spacing:-.04em;margin:0 0 8px">Ингредиенты на 3 человек</h3>
+        <div class="ingredients" id="focusIngredients"></div>
+        <h3 style="font-size:28px;letter-spacing:-.04em;margin:22px 0 8px">Как приготовить</h3>
+        <ol class="steps" id="focusSteps"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="shopping">
+    <div class="section-title">
+      <div><div class="eyebrow">03 / Закупка</div><h2>Список продуктов</h2></div>
+      <p>Таблица суммирует ингредиенты из выбранных блюд. Количество упаковок округляется вверх, чтобы хватило на неделю.</p>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <input type="search" id="shopSearch" placeholder="Найти продукт или категорию…" />
+        <select id="catFilter"><option value="">Все категории</option></select>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn" id="copyBtn2" type="button">Скопировать закупку</button>
+      </div>
+    </div>
+    <div class="shopping-wrap">
+      <div class="table-scroll">
+        <table aria-describedby="shopping">
+          <thead><tr><th>Продукт</th><th>Нужно</th><th>Упаковка</th><th>Купить</th><th>Цена ед.</th><th>По весу</th><th>По упаковкам</th><th>Источник</th></tr></thead>
+          <tbody id="shoppingBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="recipes">
+    <div class="section-title">
+      <div><div class="eyebrow">04 / Рецепты</div><h2>Карточки блюд</h2></div>
+      <p>Нажмите на карточку, чтобы открыть рецепт крупно: фото, ингредиенты, стоимость и шаги приготовления.</p>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <input type="search" id="recipeSearch" placeholder="Поиск по блюдам и ингредиентам…" />
+        <select id="recipeMeal"><option value="">Все приёмы пищи</option></select>
+      </div>
+    </div>
+    <div class="recipes-grid" id="recipesGrid"></div>
+  </section>
+
+  <section class="section" id="howto">
+    <div class="section-title">
+      <div><div class="eyebrow">05 / Инструкция</div><h2>Как пользоваться</h2></div>
+      <p>HTML можно открыть в браузере и отправить как один файл. Изменения сохраняются локально в браузере.</p>
+    </div>
+    <div class="instructions">
+      <div class="instruction-card"><h3>1. Корректируйте меню</h3><p>В разделе «План» выбирайте приём пищи и блюдо. Второй список зависит от первого — завтрак покажет только завтраки, ужин только ужины.</p></div>
+      <div class="instruction-card"><h3>2. Проверяйте стоимость</h3><p>Карточки показывают стоимость блюда на 3 человек, а фокусный блок — состав и инструкцию приготовления.</p></div>
+      <div class="instruction-card"><h3>3. Покупайте по списку</h3><p>«Закупка» пересчитывается автоматически: сколько нужно, сколько упаковок купить, ориентировочная сумма и ссылка на пример товара/категории в «Глобусе».</p></div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Рецепт">
+  <div class="modal-card">
+    <div class="modal-hero" id="modalHero"><button class="close" id="modalClose" type="button" aria-label="Закрыть">×</button><div class="modal-title"><div class="eyebrow" style="color:#fff">Рецепт</div><h2 id="modalName"></h2></div></div>
+    <div class="modal-content"><div><div class="pills" id="modalPills"></div><h3>Ингредиенты</h3><div class="ingredients" id="modalIngredients"></div></div><div><h3>Приготовление</h3><ol class="steps" id="modalSteps"></ol></div></div>
+  </div>
+</div>
+<div class="toast" id="toast">Готово</div>
+<footer class="footer">
+  <b>Примечание.</b> Цены и источники продуктов перенесены из Excel-каталога «Глобус» и являются ориентировочными: итог зависит от магазина, города, наличия, акции и фасовки. Фото подключены внешними ссылками; если файл открыть без интернета, вместо фото останутся карточки и данные. Источники фото: <span id="photoSources"></span>.
+</footer>
+<script>
+const DATA = {"dishes": [{"name": "Овсянка с бананом и яблоком", "meal": "Завтрак", "portions": 3, "kcal": 410, "protein": 13.0, "cost": 316.74, "costPer": 105.58, "comment": "сложные углеводы + фрукт + молоко", "ingredients": [{"product": "Овсяные хлопья", "qty": 0.24, "unit": "кг", "price": 133.725, "url": "https://online.globus.ru/products/gerkules--globus-klassicheskij-xlopya-ovsyanye-400g-802209_ST", "cost": 32.09}, {"product": "Молоко", "qty": 0.9, "unit": "л", "price": 135.77894736842106, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 122.2}, {"product": "Банан", "qty": 0.45, "unit": "кг", "price": 142.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510/banany-kivi-ananas-33514764", "cost": 64.35}, {"product": "Яблоки", "qty": 0.45, "unit": "кг", "price": 217.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "cost": 98.1}], "image": "https://img.iamcook.ru/2024/upl/recipes/byusers/misc/55939/49438476e1647e73d43cba6566fe7d90-2024.jpg", "steps": ["В сотейнике доведите молоко до тихого кипения, всыпьте овсяные хлопья и перемешайте.", "Варите 5–7 минут на слабом огне, пока каша не станет кремовой.", "Нарежьте банан и яблоко, часть добавьте в кашу, часть оставьте для подачи.", "Дайте постоять 2 минуты под крышкой и разложите на 3 порции."], "time": "10–20 мин", "sourceLabel": "пример фото блюда"}, {"name": "Омлет с овощами и хлебом", "meal": "Завтрак", "portions": 3, "kcal": 430, "protein": 25.0, "cost": 311.58, "costPer": 103.86, "comment": "белок + овощи + цельнозерновой хлеб", "ingredients": [{"product": "Яйца", "qty": 6.0, "unit": "шт", "price": 13.0995, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "cost": 78.6}, {"product": "Помидоры", "qty": 0.3, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 103.8}, {"product": "Огурцы", "qty": 0.3, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 60.0}, {"product": "Хлеб цельнозерновой", "qty": 0.24, "unit": "кг", "price": 276.6333333333333, "url": "https://online.globus.ru/catalog/velikij-post-113454596/postnyj-xleb-vypechka-123454649", "cost": 66.39}, {"product": "Масло подсолнечное", "qty": 0.02, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 2.8}], "image": "https://static.1000.menu/res/380/img/content/15686/vkusnyi-omlet-nastroenie_1459553155_0_max.jpg", "steps": ["Овощи нарежьте небольшими кубиками, яйца взбейте с щепоткой соли.", "Разогрейте сковороду с каплей масла, быстро прогрейте овощи 2–3 минуты.", "Влейте яйца, готовьте под крышкой на слабом огне до схватывания.", "Подавайте с хлебом или салатом, разделив на 3 порции."], "time": "10–20 мин", "sourceLabel": "пример фото блюда"}, {"name": "Творог с ягодами и хлебцами", "meal": "Завтрак", "portions": 3, "kcal": 360, "protein": 24.0, "cost": 661.34, "costPer": 220.45, "comment": "белок + клетчатка", "ingredients": [{"product": "Творог", "qty": 0.6, "unit": "кг", "price": 534.2571428571429, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/kislomolochnye-produkty-tvorog-20119170", "cost": 320.55}, {"product": "Ягоды/клубника", "qty": 0.3, "unit": "кг", "price": 899.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 270.0}, {"product": "Хлебцы", "qty": 0.12, "unit": "кг", "price": 589.9333333333333, "url": "https://online.globus.ru/catalog/khlebtsy_pshenichnye", "cost": 70.79}], "image": "https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Творог разомните вилкой или пробейте блендером для более нежной текстуры.", "Ягоды промойте и обсушите, крупные нарежьте.", "Разложите творог, ягоды и хлебцы по тарелкам.", "При желании добавьте корицу или немного йогурта."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Гречневая каша с молоком", "meal": "Завтрак", "portions": 3, "kcal": 390, "protein": 15.0, "cost": 177.77, "costPer": 59.26, "comment": "крупа + молочный белок", "ingredients": [{"product": "Гречка", "qty": 0.24, "unit": "кг", "price": 92.66000000000001, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427/grechnevaya-krupa-30121429", "cost": 22.24}, {"product": "Молоко", "qty": 0.9, "unit": "л", "price": 135.77894736842106, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 122.2}, {"product": "Масло сливочное", "qty": 0.03, "unit": "кг", "price": 1111.0555555555557, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 33.33}], "image": "https://static.1000.menu/res/380/img/content-v2/5b/03/82659/kurinaya-grudka-s-grechkoi_1706824246_8_max.jpg", "steps": ["Гречку промойте до прозрачной воды, залейте молоком и частью воды.", "Варите под крышкой 15–18 минут на слабом огне.", "Добавьте сливочное масло, выключите нагрев и дайте каше настояться 5 минут.", "Разложите на 3 порции, подавайте горячей."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Сырники запечённые с йогуртом", "meal": "Завтрак", "portions": 3, "kcal": 480, "protein": 28.0, "cost": 639.67, "costPer": 213.22, "comment": "белковый завтрак, умеренно сладкий", "ingredients": [{"product": "Творог", "qty": 0.75, "unit": "кг", "price": 534.2571428571429, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/kislomolochnye-produkty-tvorog-20119170", "cost": 400.69}, {"product": "Яйца", "qty": 2.0, "unit": "шт", "price": 13.0995, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "cost": 26.2}, {"product": "Мука", "qty": 0.09, "unit": "кг", "price": 64.495, "url": "https://online.globus.ru/catalog/bakaleya-10112696", "cost": 5.8}, {"product": "Йогурт", "qty": 0.315, "unit": "кг", "price": 657.047619047619, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 206.97}], "image": "https://cdn.food.ru/unsigned/fit/800/600/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI0MTEyOS9MVGhwajguanBlZw.jpg", "steps": ["Смешайте творог, яйца и муку до мягкой массы, дайте постоять 5 минут.", "Сформируйте небольшие сырники и выложите на пергамент.", "Запекайте при 180 °C около 18–22 минут до румяности.", "Подавайте с йогуртом, разделив на 3 порции."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Рисовая каша с яблоком", "meal": "Завтрак", "portions": 3, "kcal": 400, "protein": 12.0, "cost": 257.89, "costPer": 85.96, "comment": "мягкий завтрак с фруктом", "ingredients": [{"product": "Рис", "qty": 0.24, "unit": "кг", "price": 156.66, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427", "cost": 37.6}, {"product": "Молоко", "qty": 0.9, "unit": "л", "price": 135.77894736842106, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 122.2}, {"product": "Яблоки", "qty": 0.45, "unit": "кг", "price": 217.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "cost": 98.1}], "image": "https://images.pexels.com/photos/4553111/pexels-photo-4553111.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Рис промойте, залейте молоком и варите на слабом огне 18–22 минуты.", "Яблоки нарежьте кубиками и добавьте за 5 минут до готовности.", "Дайте каше настояться под крышкой, чтобы рис стал мягче.", "Подавайте тёплой, можно добавить корицу."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Тосты с яйцом и овощами", "meal": "Завтрак", "portions": 3, "kcal": 420, "protein": 22.0, "cost": 325.38, "costPer": 108.46, "comment": "белок + овощи", "ingredients": [{"product": "Яйца", "qty": 6.0, "unit": "шт", "price": 13.0995, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "cost": 78.6}, {"product": "Хлеб цельнозерновой", "qty": 0.3, "unit": "кг", "price": 276.6333333333333, "url": "https://online.globus.ru/catalog/velikij-post-113454596/postnyj-xleb-vypechka-123454649", "cost": 82.99}, {"product": "Помидоры", "qty": 0.3, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 103.8}, {"product": "Огурцы", "qty": 0.3, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 60.0}], "image": "https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Подсушите хлеб на сухой сковороде или в тостере.", "Яйца приготовьте как глазунью, скрэмбл или варёные — как удобнее.", "Овощи нарежьте ломтиками, слегка посолите.", "Соберите тосты и подавайте сразу."], "time": "10–20 мин", "sourceLabel": "пример фото блюда"}, {"name": "Йогурт с овсянкой и фруктом", "meal": "Завтрак", "portions": 3, "kcal": 370, "protein": 16.0, "cost": 331.31, "costPer": 110.44, "comment": "быстрый завтрак", "ingredients": [{"product": "Йогурт", "qty": 0.315, "unit": "кг", "price": 657.047619047619, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 206.97}, {"product": "Овсяные хлопья", "qty": 0.12, "unit": "кг", "price": 133.725, "url": "https://online.globus.ru/products/gerkules--globus-klassicheskij-xlopya-ovsyanye-400g-802209_ST", "cost": 16.05}, {"product": "Банан", "qty": 0.3, "unit": "кг", "price": 142.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510/banany-kivi-ananas-33514764", "cost": 42.9}, {"product": "Яблоки", "qty": 0.3, "unit": "кг", "price": 217.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "cost": 65.4}], "image": "https://img.iamcook.ru/2024/upl/recipes/byusers/misc/55939/49438476e1647e73d43cba6566fe7d90-2024.jpg", "steps": ["В сотейнике доведите молоко до тихого кипения, всыпьте овсяные хлопья и перемешайте.", "Варите 5–7 минут на слабом огне, пока каша не станет кремовой.", "Нарежьте банан и яблоко, часть добавьте в кашу, часть оставьте для подачи.", "Дайте постоять 2 минуты под крышкой и разложите на 3 порции."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Фрукты и кефир", "meal": "Перекус", "portions": 3, "kcal": 220, "protein": 8.0, "cost": 234.58, "costPer": 78.19, "comment": "лёгкий кисломолочный перекус", "ingredients": [{"product": "Кефир", "qty": 0.9, "unit": "л", "price": 103.99, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-2010118965/kislomolochnye-produkty-tvorog-2020119170", "cost": 93.59}, {"product": "Яблоки", "qty": 0.45, "unit": "кг", "price": 217.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "cost": 98.1}, {"product": "Банан", "qty": 0.3, "unit": "кг", "price": 142.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510/banany-kivi-ananas-33514764", "cost": 42.9}], "image": "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Охладите молочный продукт и фрукты.", "Фрукты нарежьте удобными кусочками.", "Разложите в 3 миски или контейнера, добавьте йогурт/кефир.", "Для более сытного варианта добавьте овсяные хлопья и дайте постоять 5 минут."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Овощные палочки с творожным соусом", "meal": "Перекус", "portions": 3, "kcal": 230, "protein": 14.0, "cost": 369.67, "costPer": 123.22, "comment": "овощи + белковый соус", "ingredients": [{"product": "Творог", "qty": 0.3, "unit": "кг", "price": 534.2571428571429, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/kislomolochnye-produkty-tvorog-20119170", "cost": 160.28}, {"product": "Огурцы", "qty": 0.45, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 90.0}, {"product": "Перец сладкий", "qty": 0.3, "unit": "кг", "price": 287.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 86.4}, {"product": "Сметана", "qty": 0.09, "unit": "кг", "price": 366.6333333333333, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 33.0}], "image": "https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Огурцы и перец нарежьте длинными палочками.", "Творог смешайте со сметаной до соуса, посолите по вкусу.", "Разложите овощи и соус по контейнерам.", "Подавайте охлаждённым как быстрый перекус."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Йогурт с бананом", "meal": "Перекус", "portions": 3, "kcal": 240, "protein": 9.0, "cost": 271.32, "costPer": 90.44, "comment": "углеводы + молочный продукт", "ingredients": [{"product": "Йогурт", "qty": 0.315, "unit": "кг", "price": 657.047619047619, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 206.97}, {"product": "Банан", "qty": 0.45, "unit": "кг", "price": 142.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510/banany-kivi-ananas-33514764", "cost": 64.35}], "image": "https://images.pexels.com/photos/3026808/pexels-photo-3026808.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Охладите молочный продукт и фрукты.", "Фрукты нарежьте удобными кусочками.", "Разложите в 3 миски или контейнера, добавьте йогурт/кефир.", "Для более сытного варианта добавьте овсяные хлопья и дайте постоять 5 минут."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Хлебцы с творогом и огурцом", "meal": "Перекус", "portions": 3, "kcal": 260, "protein": 17.0, "cost": 371.2, "costPer": 123.73, "comment": "белок + клетчатка", "ingredients": [{"product": "Хлебцы", "qty": 0.12, "unit": "кг", "price": 589.9333333333333, "url": "https://online.globus.ru/catalog/khlebtsy_pshenichnye", "cost": 70.79}, {"product": "Творог", "qty": 0.45, "unit": "кг", "price": 534.2571428571429, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/kislomolochnye-produkty-tvorog-20119170", "cost": 240.42}, {"product": "Огурцы", "qty": 0.3, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 60.0}], "image": "https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Творог разомните вилкой, огурец нарежьте тонкими ломтиками.", "Намажьте творог на хлебцы непосредственно перед едой.", "Сверху выложите огурец, при желании добавьте зелень.", "Разделите на 3 порции."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Яблоко и кефир", "meal": "Перекус", "portions": 3, "kcal": 190, "protein": 7.0, "cost": 224.38, "costPer": 74.8, "comment": "лёгкий вариант", "ingredients": [{"product": "Яблоки", "qty": 0.6, "unit": "кг", "price": 217.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "cost": 130.79}, {"product": "Кефир", "qty": 0.9, "unit": "л", "price": 103.99, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-2010118965/kislomolochnye-produkty-tvorog-2020119170", "cost": 93.59}], "image": "https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Охладите молочный продукт и фрукты.", "Фрукты нарежьте удобными кусочками.", "Разложите в 3 миски или контейнера, добавьте йогурт/кефир.", "Для более сытного варианта добавьте овсяные хлопья и дайте постоять 5 минут."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Фруктовый салат с йогуртом", "meal": "Перекус", "portions": 3, "kcal": 250, "protein": 8.0, "cost": 369.41, "costPer": 123.14, "comment": "фрукты + йогурт", "ingredients": [{"product": "Яблоки", "qty": 0.45, "unit": "кг", "price": 217.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "cost": 98.1}, {"product": "Банан", "qty": 0.45, "unit": "кг", "price": 142.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510/banany-kivi-ananas-33514764", "cost": 64.35}, {"product": "Йогурт", "qty": 0.315, "unit": "кг", "price": 657.047619047619, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 206.97}], "image": "https://images.pexels.com/photos/3026808/pexels-photo-3026808.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Охладите молочный продукт и фрукты.", "Фрукты нарежьте удобными кусочками.", "Разложите в 3 миски или контейнера, добавьте йогурт/кефир.", "Для более сытного варианта добавьте овсяные хлопья и дайте постоять 5 минут."], "time": "5–10 мин", "sourceLabel": "пример фото блюда"}, {"name": "Салат с фасолью мини", "meal": "Перекус", "portions": 3, "kcal": 300, "protein": 14.0, "cost": 263.08, "costPer": 87.69, "comment": "растительный белок", "ingredients": [{"product": "Фасоль консервированная", "qty": 0.4, "unit": "кг", "price": 241.22499999999997, "url": "https://online.globus.ru/catalog/fasol", "cost": 96.49}, {"product": "Помидоры", "qty": 0.3, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 103.8}, {"product": "Огурцы", "qty": 0.3, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 60.0}, {"product": "Масло подсолнечное", "qty": 0.02, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 2.8}], "image": "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Фасоль промойте от заливки и дайте стечь.", "Огурцы и помидоры нарежьте кубиками.", "Смешайте овощи с фасолью и маслом.", "Посолите перед подачей, чтобы овощи не дали лишний сок."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Куриная грудка с гречкой и салатом", "meal": "Обед", "portions": 3, "kcal": 650, "protein": 48.0, "cost": 621.34, "costPer": 207.11, "comment": "постный белок + крупа + овощи", "ingredients": [{"product": "Куриная грудка", "qty": 0.75, "unit": "кг", "price": 559.99, "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "cost": 419.99}, {"product": "Гречка", "qty": 0.36, "unit": "кг", "price": 92.66000000000001, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427/grechnevaya-krupa-30121429", "cost": 33.36}, {"product": "Огурцы", "qty": 0.3, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 60.0}, {"product": "Помидоры", "qty": 0.3, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 103.8}, {"product": "Масло подсолнечное", "qty": 0.03, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 4.2}], "image": "https://static.1000.menu/res/380/img/content-v2/5b/03/82659/kurinaya-grudka-s-grechkoi_1706824246_8_max.jpg", "steps": ["Гречку промойте и сварите до рассыпчатости.", "Куриную грудку нарежьте, посолите и обжарьте/запеките до готовности.", "Огурцы и помидоры нарежьте, заправьте маслом.", "Соберите тарелку: гречка, курица, свежий салат."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Рыба с рисом и овощами", "meal": "Обед", "portions": 3, "kcal": 610, "protein": 40.0, "cost": 662.16, "costPer": 220.72, "comment": "рыба + крупа + овощи", "ingredients": [{"product": "Рыба филе минтая", "qty": 0.75, "unit": "кг", "price": 649.99, "url": "https://online.globus.ru/catalog/file_zamorozhennoy_ryby", "cost": 487.49}, {"product": "Рис", "qty": 0.36, "unit": "кг", "price": 156.66, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427", "cost": 56.4}, {"product": "Морковь", "qty": 0.25, "unit": "кг", "price": 59.49, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "cost": 14.87}, {"product": "Кабачки", "qty": 0.4, "unit": "кг", "price": 247.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 99.2}, {"product": "Масло подсолнечное", "qty": 0.03, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 4.2}], "image": "https://images.pexels.com/photos/262959/pexels-photo-262959.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Рис промойте и отварите до готовности.", "Рыбное филе посолите и запеките или потушите 12–15 минут.", "Морковь и кабачки нарежьте, быстро припустите на сковороде.", "Подавайте рыбу с рисом и овощами."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Чечевичный суп с овощами", "meal": "Обед", "portions": 3, "kcal": 520, "protein": 24.0, "cost": 146.39, "costPer": 48.8, "comment": "растительный белок + овощи", "ingredients": [{"product": "Чечевица", "qty": 0.3, "unit": "кг", "price": 279.98, "url": "https://online.globus.ru/catalog/bakaleya-2010112696/krupy-bobovye-2020121427/bobovye-2030121430", "cost": 83.99}, {"product": "Картофель", "qty": 0.45, "unit": "кг", "price": 89.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 40.5}, {"product": "Морковь", "qty": 0.2, "unit": "кг", "price": 59.49, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "cost": 11.9}, {"product": "Лук", "qty": 0.15, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 7.2}, {"product": "Масло подсолнечное", "qty": 0.02, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 2.8}], "image": "https://static.1000.menu/res/380/files/user-v2/f4/8f/88712/foto/f_02-08-2022-05-31-39.1659461500.jpg", "steps": ["Чечевицу промойте, картофель, морковь и лук нарежьте кубиками.", "В кастрюле слегка прогрейте лук и морковь на масле.", "Добавьте картофель, чечевицу и воду, варите 25–30 минут.", "Посолите в конце, часть супа можно пробить блендером для густоты."], "time": "35–60 мин", "sourceLabel": "пример фото блюда"}, {"name": "Куриный суп с картофелем", "meal": "Обед", "portions": 3, "kcal": 560, "protein": 36.0, "cost": 325.09, "costPer": 108.36, "comment": "суп + белок", "ingredients": [{"product": "Куриная грудка", "qty": 0.45, "unit": "кг", "price": 559.99, "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "cost": 252.0}, {"product": "Картофель", "qty": 0.6, "unit": "кг", "price": 89.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 53.99}, {"product": "Морковь", "qty": 0.2, "unit": "кг", "price": 59.49, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "cost": 11.9}, {"product": "Лук", "qty": 0.15, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 7.2}], "image": "https://images.pexels.com/photos/1734479/pexels-photo-1734479.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Куриную грудку залейте водой, доведите до кипения и снимите пену.", "Добавьте картофель, морковь и лук, варите 25–30 минут.", "Достаньте курицу, нарежьте и верните в суп.", "Посолите в конце, дайте настояться 5 минут."], "time": "35–60 мин", "sourceLabel": "пример фото блюда"}, {"name": "Паста с курицей и овощами", "meal": "Обед", "portions": 3, "kcal": 670, "protein": 42.0, "cost": 702.47, "costPer": 234.16, "comment": "сытный обед с овощами", "ingredients": [{"product": "Макароны", "qty": 0.36, "unit": "кг", "price": 114.42222222222222, "url": "https://online.globus.ru/catalog/bakaleya-10112696/makarony-i-pasta-20121432", "cost": 41.19}, {"product": "Куриная грудка", "qty": 0.6, "unit": "кг", "price": 559.99, "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "cost": 335.99}, {"product": "Помидоры", "qty": 0.4, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 138.4}, {"product": "Кабачки", "qty": 0.3, "unit": "кг", "price": 247.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 74.4}, {"product": "Сыр", "qty": 0.09, "unit": "кг", "price": 1249.95, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 112.5}], "image": "https://static.1000.menu/res/380/img/content-v2/ac/82/106755/spagetti-s-kuricei-na-skovorode_1768550222_3_q161zai_max.jpg", "steps": ["Макароны отварите до al dente, сохраните немного воды от варки.", "Курицу нарежьте и обжарьте до готовности.", "Добавьте помидоры и кабачки, тушите 5–7 минут.", "Соедините с пастой, добавьте сыр и немного воды от варки для соуса."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Рис с фаршем и овощами", "meal": "Обед", "portions": 3, "kcal": 700, "protein": 38.0, "cost": 521.89, "costPer": 173.96, "comment": "энергетически плотный обед", "ingredients": [{"product": "Рис", "qty": 0.36, "unit": "кг", "price": 156.66, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427", "cost": 56.4}, {"product": "Фарш свинина-говядина", "qty": 0.6, "unit": "кг", "price": 599.99, "url": "https://online.globus.ru/catalog/sobstvennoe-proizvodstvo-10121409/myasnoj-cex-20121410/farsh-i-polufabrikaty-31483587", "cost": 359.99}, {"product": "Морковь", "qty": 0.2, "unit": "кг", "price": 59.49, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "cost": 11.9}, {"product": "Лук", "qty": 0.15, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 7.2}, {"product": "Перец сладкий", "qty": 0.3, "unit": "кг", "price": 287.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 86.4}], "image": "https://static.1000.menu/res/380/img/content-v2/f3/9a/30368/ris-s-farshem-v-smetane_1623307765_18_max.jpg", "steps": ["Рис промойте и отварите почти до готовности.", "Лук и морковь обжарьте, добавьте фарш и готовьте до изменения цвета.", "Добавьте перец и рис, тушите вместе 8–10 минут.", "Проверьте соль и подавайте горячим."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Салат с фасолью и яйцом", "meal": "Обед", "portions": 3, "kcal": 540, "protein": 26.0, "cost": 492.27, "costPer": 164.09, "comment": "растительный и животный белок", "ingredients": [{"product": "Фасоль консервированная", "qty": 0.4, "unit": "кг", "price": 241.22499999999997, "url": "https://online.globus.ru/catalog/fasol", "cost": 96.49}, {"product": "Яйца", "qty": 4.0, "unit": "шт", "price": 13.0995, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "cost": 52.4}, {"product": "Помидоры", "qty": 0.4, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 138.4}, {"product": "Огурцы", "qty": 0.4, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 80.0}, {"product": "Салат айсберг", "qty": 1.0, "unit": "шт", "price": 124.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 124.99}], "image": "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Яйца сварите вкрутую и остудите.", "Фасоль промойте, овощи и айсберг нарежьте.", "Смешайте всё в большой миске, яйца добавьте крупными дольками.", "Заправьте по вкусу перед подачей."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Куриное бедро с гречкой", "meal": "Обед", "portions": 3, "kcal": 690, "protein": 42.0, "cost": 397.45, "costPer": 132.48, "comment": "бюджетный белковый обед", "ingredients": [{"product": "Куриное бедро", "qty": 0.75, "unit": "кг", "price": 459.99, "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "cost": 344.99}, {"product": "Гречка", "qty": 0.36, "unit": "кг", "price": 92.66000000000001, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427/grechnevaya-krupa-30121429", "cost": 33.36}, {"product": "Морковь", "qty": 0.2, "unit": "кг", "price": 59.49, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "cost": 11.9}, {"product": "Лук", "qty": 0.15, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 7.2}], "image": "https://static.1000.menu/res/380/img/content-v2/5b/03/82659/kurinaya-grudka-s-grechkoi_1706824246_8_max.jpg", "steps": ["Гречку промойте, лук и морковь нарежьте.", "Куриное бедро обжарьте до лёгкой корочки.", "Добавьте овощи и гречку, влейте воду и тушите под крышкой 25–30 минут.", "Дайте постоять 5 минут, чтобы крупа впитала сок."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Рыба запечённая с картофелем и салатом", "meal": "Ужин", "portions": 3, "kcal": 590, "protein": 39.0, "cost": 744.17, "costPer": 248.06, "comment": "рыба + овощи, умеренные углеводы", "ingredients": [{"product": "Рыба филе минтая", "qty": 0.75, "unit": "кг", "price": 649.99, "url": "https://online.globus.ru/catalog/file_zamorozhennoy_ryby", "cost": 487.49}, {"product": "Картофель", "qty": 0.75, "unit": "кг", "price": 89.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 67.49}, {"product": "Салат айсберг", "qty": 1.0, "unit": "шт", "price": 124.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 124.99}, {"product": "Огурцы", "qty": 0.3, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 60.0}, {"product": "Масло подсолнечное", "qty": 0.03, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 4.2}], "image": "https://static.1000.menu/res/380/img/content-v2/18/ef/68146/ryba-zapechennaya-s-kartofelem-v-duxovke_1663672406_14_max.jpg", "steps": ["Картофель нарежьте кубиками или дольками, рыбу обсушите.", "Смешайте картофель с маслом и солью, выложите в форму.", "Сверху разложите рыбу, накройте фольгой и запекайте при 190 °C 35–45 минут.", "За 10 минут до готовности снимите фольгу, подавайте с салатом."], "time": "35–60 мин", "sourceLabel": "пример фото блюда"}, {"name": "Куриное бедро с кабачками", "meal": "Ужин", "portions": 3, "kcal": 560, "protein": 38.0, "cost": 604.78, "costPer": 201.59, "comment": "белок + овощи", "ingredients": [{"product": "Куриное бедро", "qty": 0.75, "unit": "кг", "price": 459.99, "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "cost": 344.99}, {"product": "Кабачки", "qty": 0.6, "unit": "кг", "price": 247.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 148.79}, {"product": "Помидоры", "qty": 0.3, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 103.8}, {"product": "Лук", "qty": 0.15, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 7.2}], "image": "https://images.pexels.com/photos/410648/pexels-photo-410648.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Бедро нарежьте крупными кусками, кабачки и помидоры — ломтиками.", "Сначала обжарьте курицу до лёгкой корочки.", "Добавьте лук, кабачки и помидоры, тушите 20–25 минут под крышкой.", "Посолите в конце, подавайте с соком от тушения."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Чечевица с овощами и сыром", "meal": "Ужин", "portions": 3, "kcal": 590, "protein": 29.0, "cost": 408.28, "costPer": 136.09, "comment": "растительный белок + овощи", "ingredients": [{"product": "Чечевица", "qty": 0.36, "unit": "кг", "price": 279.98, "url": "https://online.globus.ru/catalog/bakaleya-2010112696/krupy-bobovye-2020121427/bobovye-2030121430", "cost": 100.79}, {"product": "Морковь", "qty": 0.2, "unit": "кг", "price": 59.49, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "cost": 11.9}, {"product": "Лук", "qty": 0.15, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 7.2}, {"product": "Помидоры", "qty": 0.4, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 138.4}, {"product": "Сыр", "qty": 0.12, "unit": "кг", "price": 1249.95, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 149.99}], "image": "https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Чечевицу промойте и варите 15–20 минут до мягкости.", "Лук, морковь и помидоры потушите отдельно до соуса.", "Соедините чечевицу с овощами, прогрейте 3–5 минут.", "Посыпьте сыром перед подачей."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Фаршированные перцы с рисом", "meal": "Ужин", "portions": 3, "kcal": 720, "protein": 40.0, "cost": 828.18, "costPer": 276.06, "comment": "сытный ужин", "ingredients": [{"product": "Перец сладкий", "qty": 0.9, "unit": "кг", "price": 287.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 259.19}, {"product": "Фарш свинина-говядина", "qty": 0.6, "unit": "кг", "price": 599.99, "url": "https://online.globus.ru/catalog/sobstvennoe-proizvodstvo-10121409/myasnoj-cex-20121410/farsh-i-polufabrikaty-31483587", "cost": 359.99}, {"product": "Рис", "qty": 0.24, "unit": "кг", "price": 156.66, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427", "cost": 37.6}, {"product": "Помидоры", "qty": 0.4, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 138.4}, {"product": "Сметана", "qty": 0.09, "unit": "кг", "price": 366.6333333333333, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 33.0}], "image": "https://static.1000.menu/res/380/img/content-v2/80/0d/397/percy-farshirovannye-myasom-i-risom-v-kastrule_1616859893_13_max.jpg", "steps": ["Рис отварите до полуготовности, перцы очистите от семян.", "Смешайте фарш, рис и часть помидоров, посолите.", "Наполните перцы, выложите в форму или кастрюлю.", "Добавьте томатно-сметанный соус и тушите/запекайте 35–45 минут."], "time": "35–60 мин", "sourceLabel": "пример фото блюда"}, {"name": "Омлет с овощным салатом", "meal": "Ужин", "portions": 3, "kcal": 460, "protein": 27.0, "cost": 394.68, "costPer": 131.56, "comment": "лёгкий белковый ужин", "ingredients": [{"product": "Яйца", "qty": 6.0, "unit": "шт", "price": 13.0995, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "cost": 78.6}, {"product": "Помидоры", "qty": 0.35, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 121.1}, {"product": "Огурцы", "qty": 0.35, "unit": "кг", "price": 199.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 70.0}, {"product": "Салат айсберг", "qty": 1.0, "unit": "шт", "price": 124.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 124.99}], "image": "https://static.1000.menu/res/380/img/content/15686/vkusnyi-omlet-nastroenie_1459553155_0_max.jpg", "steps": ["Овощи нарежьте небольшими кубиками, яйца взбейте с щепоткой соли.", "Разогрейте сковороду с каплей масла, быстро прогрейте овощи 2–3 минуты.", "Влейте яйца, готовьте под крышкой на слабом огне до схватывания.", "Подавайте с хлебом или салатом, разделив на 3 порции."], "time": "10–20 мин", "sourceLabel": "пример фото блюда"}, {"name": "Курица с рисом и кабачками", "meal": "Ужин", "portions": 3, "kcal": 620, "protein": 42.0, "cost": 539.19, "costPer": 179.73, "comment": "белок + овощи + крупа", "ingredients": [{"product": "Куриная грудка", "qty": 0.65, "unit": "кг", "price": 559.99, "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "cost": 363.99}, {"product": "Рис", "qty": 0.3, "unit": "кг", "price": 156.66, "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427", "cost": 47.0}, {"product": "Кабачки", "qty": 0.5, "unit": "кг", "price": 247.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 124.0}, {"product": "Масло подсолнечное", "qty": 0.03, "unit": "л", "price": 139.99, "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "cost": 4.2}], "image": "https://images.pexels.com/photos/410648/pexels-photo-410648.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Рис промойте, курицу и кабачки нарежьте.", "Курицу быстро обжарьте, добавьте кабачки и рис.", "Влейте воду, тушите под крышкой 18–22 минуты.", "Дайте блюду постоять 5 минут перед подачей."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Паста с овощным соусом и сыром", "meal": "Ужин", "portions": 3, "kcal": 610, "protein": 24.0, "cost": 480.88, "costPer": 160.29, "comment": "растительный ужин с сыром", "ingredients": [{"product": "Макароны", "qty": 0.36, "unit": "кг", "price": 114.42222222222222, "url": "https://online.globus.ru/catalog/bakaleya-10112696/makarony-i-pasta-20121432", "cost": 41.19}, {"product": "Помидоры", "qty": 0.5, "unit": "кг", "price": 345.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 173.0}, {"product": "Кабачки", "qty": 0.3, "unit": "кг", "price": 247.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 74.4}, {"product": "Лук", "qty": 0.1, "unit": "кг", "price": 47.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 4.8}, {"product": "Сыр", "qty": 0.15, "unit": "кг", "price": 1249.95, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "cost": 187.49}], "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=1200", "steps": ["Макароны отварите до al dente.", "Лук, помидоры и кабачки потушите до мягкого овощного соуса.", "Соедините пасту с соусом, добавьте сыр и прогрейте 1–2 минуты.", "Подавайте сразу, пока сыр тянется."], "time": "25–40 мин", "sourceLabel": "пример фото блюда"}, {"name": "Творожная запеканка с ягодами", "meal": "Ужин", "portions": 3, "kcal": 520, "protein": 30.0, "cost": 670.79, "costPer": 223.6, "comment": "белковый сладкий ужин", "ingredients": [{"product": "Творог", "qty": 0.75, "unit": "кг", "price": 534.2571428571429, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/kislomolochnye-produkty-tvorog-20119170", "cost": 400.69}, {"product": "Яйца", "qty": 3.0, "unit": "шт", "price": 13.0995, "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "cost": 39.3}, {"product": "Мука", "qty": 0.09, "unit": "кг", "price": 64.495, "url": "https://online.globus.ru/catalog/bakaleya-10112696", "cost": 5.8}, {"product": "Ягоды/клубника", "qty": 0.25, "unit": "кг", "price": 899.99, "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "cost": 225.0}], "image": "https://cdn.food.ru/unsigned/fit/800/600/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy9yZWNpcGVzLzEzMzA2OS9jb3ZlcnMveFZrSFhQLmpwZWc.jpg", "steps": ["Творог смешайте с яйцами и мукой до однородности.", "Аккуратно вмешайте ягоды, чтобы они не дали слишком много сока.", "Выложите в форму и запекайте при 180 °C 30–40 минут.", "Остудите 10 минут, затем нарежьте на порции."], "time": "35–60 мин", "sourceLabel": "пример фото блюда"}], "products": {"Овсяные хлопья": {"product": "Овсяные хлопья", "category": "Бакалея", "unit": "кг", "packQty": 0.4, "pack": "400 г", "packPrice": 53.49, "priceUnit": 133.725, "example": "Геркулес Глобус классический, 400 г", "url": "https://online.globus.ru/products/gerkules--globus-klassicheskij-xlopya-ovsyanye-400g-802209_ST", "note": "цена за упаковку", "date": "2026-05-27"}, "Молоко": {"product": "Молоко", "category": "Молочные", "unit": "л", "packQty": 0.95, "pack": "950 мл", "packPrice": 128.99, "priceUnit": 135.77894736842106, "example": "Молоко Село Зелёное 2,5%, 950 мл", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "note": "цена за бутылку", "date": "2026-05-27"}, "Банан": {"product": "Банан", "category": "Фрукты", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 142.99, "priceUnit": 142.99, "example": "Банан, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510/banany-kivi-ananas-33514764", "note": "цена за кг", "date": "2026-05-27"}, "Яблоки": {"product": "Яблоки", "category": "Фрукты", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 217.99, "priceUnit": 217.99, "example": "Яблоки Крипс Пинк, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/frukty-20121510", "note": "цена за кг", "date": "2026-05-27"}, "Яйца": {"product": "Яйца", "category": "Молочные", "unit": "шт", "packQty": 20.0, "pack": "20 шт", "packPrice": 261.99, "priceUnit": 13.0995, "example": "Яйца куриные Глобус Деревенские С1, 20 шт", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/yajcza-20119191", "note": "цена за упаковку", "date": "2026-05-27"}, "Помидоры": {"product": "Помидоры", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 345.99, "priceUnit": 345.99, "example": "Помидоры красные Южные, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за кг", "date": "2026-05-27"}, "Огурцы": {"product": "Огурцы", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 199.99, "priceUnit": 199.99, "example": "Огурцы тепличные, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за кг", "date": "2026-05-27"}, "Перец сладкий": {"product": "Перец сладкий", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 287.99, "priceUnit": 287.99, "example": "Перец красный, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за кг", "date": "2026-05-27"}, "Хлеб цельнозерновой": {"product": "Хлеб цельнозерновой", "category": "Хлеб", "unit": "кг", "packQty": 0.3, "pack": "300 г", "packPrice": 82.99, "priceUnit": 276.6333333333333, "example": "Хлеб пшенично-ржаной зерновой, 300 г", "url": "https://online.globus.ru/catalog/velikij-post-113454596/postnyj-xleb-vypechka-123454649", "note": "цена за буханку", "date": "2026-05-27"}, "Творог": {"product": "Творог", "category": "Молочные", "unit": "кг", "packQty": 0.35, "pack": "350 г", "packPrice": 186.99, "priceUnit": 534.2571428571429, "example": "Творог Глобус Вита 9%, 350 г", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965/kislomolochnye-produkty-tvorog-20119170", "note": "цена за пачку", "date": "2026-05-27"}, "Ягоды/клубника": {"product": "Ягоды/клубника", "category": "Фрукты", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 899.99, "priceUnit": 899.99, "example": "Клубника, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "сезонная цена за кг", "date": "2026-05-27"}, "Хлебцы": {"product": "Хлебцы", "category": "Хлеб", "unit": "кг", "packQty": 0.15, "pack": "150 г", "packPrice": 88.49, "priceUnit": 589.9333333333333, "example": "Хлебцы цельнозерновые, 150 г", "url": "https://online.globus.ru/catalog/khlebtsy_pshenichnye", "note": "цена за пачку", "date": "2026-05-27"}, "Гречка": {"product": "Гречка", "category": "Бакалея", "unit": "кг", "packQty": 1.5, "pack": "1,5 кг", "packPrice": 138.99, "priceUnit": 92.66000000000001, "example": "Крупа гречневая Глобус ядрица, 1,5 кг", "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427/grechnevaya-krupa-30121429", "note": "цена за упаковку", "date": "2026-05-27"}, "Рис": {"product": "Рис", "category": "Бакалея", "unit": "кг", "packQty": 1.5, "pack": "1,5 кг", "packPrice": 234.99, "priceUnit": 156.66, "example": "Рис круглозёрный Глобус, 1,5 кг", "url": "https://online.globus.ru/catalog/bakaleya-10112696/krupy-bobovye-20121427", "note": "цена за упаковку", "date": "2026-05-27"}, "Йогурт": {"product": "Йогурт", "category": "Молочные", "unit": "кг", "packQty": 0.105, "pack": "105 г", "packPrice": 68.99, "priceUnit": 657.047619047619, "example": "Йогурт Даниссимо, 105 г", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "note": "можно заменить натуральным йогуртом", "date": "2026-05-27"}, "Макароны": {"product": "Макароны", "category": "Бакалея", "unit": "кг", "packQty": 0.45, "pack": "450 г", "packPrice": 51.49, "priceUnit": 114.42222222222222, "example": "Макаронные изделия Глобус, 450 г", "url": "https://online.globus.ru/catalog/bakaleya-10112696/makarony-i-pasta-20121432", "note": "цена по карте/акции из выдачи", "date": "2026-05-27"}, "Куриная грудка": {"product": "Куриная грудка", "category": "Мясо/птица", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 559.99, "priceUnit": 559.99, "example": "Филе цыплят-бройлеров охлаждённое, кг", "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "note": "цена за кг", "date": "2026-05-27"}, "Куриное бедро": {"product": "Куриное бедро", "category": "Мясо/птица", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 459.99, "priceUnit": 459.99, "example": "Филе бедра цыплят-бройлеров, кг", "url": "https://online.globus.ru/catalog/myaso-pticza-kolbasy-10121355/pticza-20121365", "note": "цена за кг", "date": "2026-05-27"}, "Рыба филе минтая": {"product": "Рыба филе минтая", "category": "Рыба", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 649.99, "priceUnit": 649.99, "example": "Минтай замороженный порционное филе, кг", "url": "https://online.globus.ru/catalog/file_zamorozhennoy_ryby", "note": "цена за кг", "date": "2026-05-27"}, "Фарш свинина-говядина": {"product": "Фарш свинина-говядина", "category": "Мясо", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 599.99, "priceUnit": 599.99, "example": "Фарш из свинины и говядины смешанный, кг", "url": "https://online.globus.ru/catalog/sobstvennoe-proizvodstvo-10121409/myasnoj-cex-20121410/farsh-i-polufabrikaty-31483587", "note": "цена за кг", "date": "2026-05-27"}, "Чечевица": {"product": "Чечевица", "category": "Бакалея", "unit": "кг", "packQty": 0.5, "pack": "500 г", "packPrice": 139.99, "priceUnit": 279.98, "example": "Чечевица Глобус Вита красная, 500 г", "url": "https://online.globus.ru/catalog/bakaleya-2010112696/krupy-bobovye-2020121427/bobovye-2030121430", "note": "цена за пачку", "date": "2026-05-27"}, "Картофель": {"product": "Картофель", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 89.99, "priceUnit": 89.99, "example": "Картофель Египет, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за кг", "date": "2026-05-27"}, "Морковь": {"product": "Морковь", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 59.49, "priceUnit": 59.49, "example": "Морковь, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489/ovoshhi-i-griby-20121494/korneplody-33514757", "note": "цена за кг", "date": "2026-05-27"}, "Лук": {"product": "Лук", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 47.99, "priceUnit": 47.99, "example": "Лук репчатый, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за кг", "date": "2026-05-27"}, "Кабачки": {"product": "Кабачки", "category": "Овощи", "unit": "кг", "packQty": 1.0, "pack": "1 кг", "packPrice": 247.99, "priceUnit": 247.99, "example": "Кабачки, вес", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за кг", "date": "2026-05-27"}, "Салат айсберг": {"product": "Салат айсберг", "category": "Овощи", "unit": "шт", "packQty": 1.0, "pack": "1 шт", "packPrice": 124.99, "priceUnit": 124.99, "example": "Салат Айсберг, 1 шт", "url": "https://online.globus.ru/catalog/ovoshhi-frukty-zelen-10121489", "note": "цена за штуку", "date": "2026-05-27"}, "Фасоль консервированная": {"product": "Фасоль консервированная", "category": "Бакалея", "unit": "кг", "packQty": 0.4, "pack": "400 г", "packPrice": 96.49, "priceUnit": 241.22499999999997, "example": "Фасоль красная Глобус натуральная, 400 г", "url": "https://online.globus.ru/catalog/fasol", "note": "цена за банку", "date": "2026-05-27"}, "Сыр": {"product": "Сыр", "category": "Молочные", "unit": "кг", "packQty": 0.2, "pack": "200 г", "packPrice": 249.99, "priceUnit": 1249.95, "example": "Сыр полутвёрдый Брест-Литовск, 200 г", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "note": "цена за пачку", "date": "2026-05-27"}, "Кефир": {"product": "Кефир", "category": "Молочные", "unit": "л", "packQty": 1.0, "pack": "1 кг/л", "packPrice": 103.99, "priceUnit": 103.99, "example": "Кефир Глобус Вита 3,2%, 1 кг", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-2010118965/kislomolochnye-produkty-tvorog-2020119170", "note": "цена за бутылку", "date": "2026-05-27"}, "Масло подсолнечное": {"product": "Масло подсолнечное", "category": "Бакалея", "unit": "л", "packQty": 1.0, "pack": "1 л", "packPrice": 139.99, "priceUnit": 139.99, "example": "Масло подсолнечное Глобус, 1 л", "url": "https://online.globus.ru/catalog/bakaleya-10112696/rastitelnye-masla-21590613/podsolnechnoe-maslo-31590615", "note": "цена за бутылку", "date": "2026-05-27"}, "Сметана": {"product": "Сметана", "category": "Молочные", "unit": "кг", "packQty": 0.3, "pack": "300 г", "packPrice": 109.99, "priceUnit": 366.6333333333333, "example": "Сметана Коровка из Кореновки 15%, 300 г", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "note": "цена за пачку", "date": "2026-05-27"}, "Мука": {"product": "Мука", "category": "Бакалея", "unit": "кг", "packQty": 2.0, "pack": "2 кг", "packPrice": 128.99, "priceUnit": 64.495, "example": "Мука пшеничная Французская штучка, 2 кг", "url": "https://online.globus.ru/catalog/bakaleya-10112696", "note": "цена за пакет", "date": "2026-05-27"}, "Масло сливочное": {"product": "Масло сливочное", "category": "Молочные", "unit": "кг", "packQty": 0.18, "pack": "180 г", "packPrice": 199.99, "priceUnit": 1111.0555555555557, "example": "Масло сливочное Экомилк 82,5%, 180 г", "url": "https://online.globus.ru/catalog/molochnye-produkty-syr-yajcza-10118965", "note": "цена за пачку", "date": "2026-05-27"}}, "defaultPlan": [{"day": "Понедельник", "note": "", "meal": "Завтрак", "dish": "Овсянка с бананом и яблоком"}, {"day": "Понедельник", "note": "", "meal": "Перекус", "dish": "Овощные палочки с творожным соусом"}, {"day": "Понедельник", "note": "", "meal": "Обед", "dish": "Куриная грудка с гречкой и салатом"}, {"day": "Понедельник", "note": "", "meal": "Ужин", "dish": "Рыба запечённая с картофелем и салатом"}, {"day": "Вторник", "note": "", "meal": "Завтрак", "dish": "Омлет с овощами и хлебом"}, {"day": "Вторник", "note": "", "meal": "Перекус", "dish": "Фрукты и кефир"}, {"day": "Вторник", "note": "", "meal": "Обед", "dish": "Чечевичный суп с овощами"}, {"day": "Вторник", "note": "", "meal": "Ужин", "dish": "Куриное бедро с кабачками"}, {"day": "Среда", "note": "", "meal": "Завтрак", "dish": "Творог с ягодами и хлебцами"}, {"day": "Среда", "note": "", "meal": "Перекус", "dish": "Йогурт с бананом"}, {"day": "Среда", "note": "", "meal": "Обед", "dish": "Рыба с рисом и овощами"}, {"day": "Среда", "note": "", "meal": "Ужин", "dish": "Омлет с овощным салатом"}, {"day": "Четверг", "note": "", "meal": "Завтрак", "dish": "Гречневая каша с молоком"}, {"day": "Четверг", "note": "", "meal": "Перекус", "dish": "Хлебцы с творогом и огурцом"}, {"day": "Четверг", "note": "", "meal": "Обед", "dish": "Паста с курицей и овощами"}, {"day": "Четверг", "note": "", "meal": "Ужин", "dish": "Чечевица с овощами и сыром"}, {"day": "Пятница", "note": "", "meal": "Завтрак", "dish": "Сырники запечённые с йогуртом"}, {"day": "Пятница", "note": "", "meal": "Перекус", "dish": "Яблоко и кефир"}, {"day": "Пятница", "note": "", "meal": "Обед", "dish": "Куриный суп с картофелем"}, {"day": "Пятница", "note": "", "meal": "Ужин", "dish": "Курица с рисом и кабачками"}, {"day": "Суббота", "note": "", "meal": "Завтрак", "dish": "Рисовая каша с яблоком"}, {"day": "Суббота", "note": "", "meal": "Перекус", "dish": "Фруктовый салат с йогуртом"}, {"day": "Суббота", "note": "", "meal": "Обед", "dish": "Рис с фаршем и овощами"}, {"day": "Суббота", "note": "", "meal": "Ужин", "dish": "Паста с овощным соусом и сыром"}, {"day": "Воскресенье", "note": "", "meal": "Завтрак", "dish": "Тосты с яйцом и овощами"}, {"day": "Воскресенье", "note": "", "meal": "Перекус", "dish": "Салат с фасолью мини"}, {"day": "Воскресенье", "note": "", "meal": "Обед", "dish": "Салат с фасолью и яйцом"}, {"day": "Воскресенье", "note": "", "meal": "Ужин", "dish": "Фаршированные перцы с рисом"}], "mealOrder": ["Завтрак", "Перекус", "Обед", "Ужин"], "dayOrder": ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"], "photoSources": [{"name": "IamCook: фото овсяной каши", "url": "https://www.iamcook.ru/showrecipe/36825"}, {"name": "1000.menu: фото курицы с гречкой", "url": "https://1000.menu/cooking/82659-kurinaya-grudka-s-grechkoi"}, {"name": "1000.menu: фото омлета", "url": "https://1000.menu/cooking/15686-vkusnyi-omlet-nastroenie"}, {"name": "1000.menu: фото чечевичного супа", "url": "https://1000.menu/cooking/13369-sup-iz-chechevicy-s-kuricei"}, {"name": "1000.menu: фото рыбы с картофелем", "url": "https://1000.menu/cooking/68146-ryba-zapechennaya-s-kartofelem-v-duxovke"}, {"name": "1000.menu: фото пасты с курицей", "url": "https://1000.menu/cooking/106755-spagetti-s-kuricei-na-skovorode"}, {"name": "1000.menu: фото риса с фаршем", "url": "https://1000.menu/cooking/30368-ris-s-farshem-v-smetane"}, {"name": "1000.menu: фото фаршированных перцев", "url": "https://1000.menu/cooking/397-percy-farshirovannye-myasom-i-risom-v-kastrule"}, {"name": "Food.ru: фото сырников и творожной запеканки", "url": "https://food.ru/recipes/236024-zapechennye-syrniki-1732855212"}, {"name": "Pexels: дополнительные фото для карточек", "url": "https://www.pexels.com/"}]};
+const state = { plan: structuredClone(DATA.defaultPlan), focus: DATA.defaultPlan[0]?.dish || DATA.dishes[0].name };
+const dishMap = new Map(DATA.dishes.map(d => [d.name, d]));
+const fmtRub = n => new Intl.NumberFormat('ru-RU', {maximumFractionDigits:0}).format(Math.round(n || 0)) + ' ₽';
+const fmtNum = (n, max=2) => new Intl.NumberFormat('ru-RU', {maximumFractionDigits:max}).format(n || 0);
+function esc(s) { return String(s ?? '').replace(/[&<>'"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m])); }
+function photoStyle(url) { return `background-image: linear-gradient(135deg, rgba(0,122,255,.22), rgba(255,149,0,.18)), url('${String(url).replace(/'/g, "%27")}')`; }
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1800); }
+function save() { localStorage.setItem('keynoteMenuPlan.v1', JSON.stringify(state.plan)); localStorage.setItem('keynoteMenuFocus.v1', state.focus); }
+function load() { try { const p = JSON.parse(localStorage.getItem('keynoteMenuPlan.v1')||'null'); if (Array.isArray(p) && p.length) state.plan=p; const f=localStorage.getItem('keynoteMenuFocus.v1'); if (f && dishMap.has(f)) state.focus=f; } catch(e) {} }
+function dishesForMeal(meal) { return DATA.dishes.filter(d => d.meal === meal); }
+function planByDay() { const by = new Map(DATA.dayOrder.map(d => [d, []])); state.plan.forEach((it, idx) => { if(!by.has(it.day)) by.set(it.day, []); by.get(it.day).push({...it, idx}); }); return by; }
+function renderPlan() {
+  const grid = document.getElementById('planGrid'); grid.innerHTML = '';
+  const by = planByDay();
+  DATA.dayOrder.forEach(day => {
+    const wrap = document.createElement('div'); wrap.className='day'; wrap.innerHTML=`<h3>${esc(day)}</h3>`;
+    const items = (by.get(day)||[]).sort((a,b)=>DATA.mealOrder.indexOf(a.meal)-DATA.mealOrder.indexOf(b.meal));
+    items.forEach(item => {
+      const dish = dishMap.get(item.dish) || DATA.dishes[0];
+      const mealOptions = DATA.mealOrder.map(m => `<option value="${esc(m)}" ${m===item.meal?'selected':''}>${esc(m)}</option>`).join('');
+      const dishOptions = dishesForMeal(item.meal).map(d => `<option value="${esc(d.name)}" ${d.name===item.dish?'selected':''}>${esc(d.name)}</option>`).join('');
+      const card = document.createElement('div'); card.className='meal-card'; card.innerHTML = `
+        <div class="meal-photo" style="${photoStyle(dish.image)}"><span class="meal-chip">${esc(item.meal)}</span></div>
+        <div class="meal-body">
+          <select data-kind="meal" data-idx="${item.idx}" aria-label="Приём пищи">${mealOptions}</select>
+          <select data-kind="dish" data-idx="${item.idx}" aria-label="Блюдо">${dishOptions}</select>
+          <div class="rowline"><span>на 3 чел.</span><b>${fmtRub(dish.cost)}</b></div>
+          <div class="rowline"><span>ккал / белок</span><b>${dish.kcal} / ${fmtNum(dish.protein,0)} г</b></div>
+        </div>`;
+      card.addEventListener('click', e => { if(e.target.tagName !== 'SELECT') { state.focus = item.dish; save(); renderFocus(); syncFocusSelect(); } });
+      wrap.appendChild(card);
+    });
+    grid.appendChild(wrap);
+  });
+  grid.querySelectorAll('select').forEach(sel => sel.addEventListener('change', e => {
+    const idx = Number(e.target.dataset.idx), kind = e.target.dataset.kind;
+    if (kind === 'meal') {
+      const newMeal = e.target.value; state.plan[idx].meal = newMeal; state.plan[idx].dish = dishesForMeal(newMeal)[0].name;
+    } else { state.plan[idx].dish = e.target.value; state.focus = e.target.value; }
+    save(); renderAll();
+  }));
+}
+function totals() {
+  let dishCost=0, kcalByDay={}, proteinByDay={};
+  DATA.dayOrder.forEach(d=>{kcalByDay[d]=0; proteinByDay[d]=0;});
+  const tally = {};
+  state.plan.forEach(item => {
+    const dish = dishMap.get(item.dish); if(!dish) return;
+    dishCost += dish.cost; kcalByDay[item.day]=(kcalByDay[item.day]||0)+dish.kcal; proteinByDay[item.day]=(proteinByDay[item.day]||0)+dish.protein;
+    dish.ingredients.forEach(ing => {
+      const key=ing.product; if(!tally[key]) tally[key]={product:key, qty:0, unit:ing.unit, cost:0};
+      tally[key].qty += ing.qty; tally[key].cost += ing.cost;
+    });
+  });
+  let packCost=0; const rows = Object.values(tally).map(x => {
+    const p = DATA.products[x.product] || {category:'', packQty:1, pack:'', packPrice:0, priceUnit:0, example:'', url:'', unit:x.unit};
+    const packages = Math.ceil((x.qty || 0)/(p.packQty || 1));
+    const byWeight = (x.qty || 0) * (p.priceUnit || 0);
+    const byPack = packages * (p.packPrice || 0);
+    packCost += byPack;
+    return {...x, ...p, qty:x.qty, packages, byWeight, byPack};
+  }).sort((a,b)=>(a.category||'').localeCompare(b.category||'ru') || a.product.localeCompare(b.product,'ru'));
+  const days = DATA.dayOrder.length || 7;
+  const avgKcal = Object.values(kcalByDay).reduce((a,b)=>a+b,0)/days;
+  const avgProtein = Object.values(proteinByDay).reduce((a,b)=>a+b,0)/days;
+  return {dishCost, packCost, rows, avgKcal, avgProtein};
+}
+function renderKpis() {
+  const t = totals();
+  document.getElementById('kpiDishCost').textContent = fmtRub(t.dishCost);
+  document.getElementById('kpiPackCost').textContent = fmtRub(t.packCost);
+  document.getElementById('kpiKcal').textContent = fmtNum(t.avgKcal,0);
+  document.getElementById('kpiProtein').textContent = fmtNum(t.avgProtein,0) + ' г';
+  document.getElementById('heroBudget').textContent = fmtRub(t.packCost);
+  document.getElementById('heroAvg').textContent = fmtNum(t.avgKcal,0);
+}
+function renderShopping() {
+  const t = totals(); const q = document.getElementById('shopSearch').value.toLowerCase().trim(); const cat = document.getElementById('catFilter').value;
+  const body = document.getElementById('shoppingBody'); body.innerHTML = '';
+  t.rows.filter(r => (!cat || r.category===cat) && (!q || (r.product+' '+r.category+' '+r.example).toLowerCase().includes(q))).forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><b>${esc(r.product)}</b><div class="cat">${esc(r.category||'')}</div><small>${esc(r.example||'')}</small></td>
+      <td><b>${fmtNum(r.qty,2)} ${esc(r.unit)}</b></td>
+      <td>${esc(r.pack||'—')}</td>
+      <td><b>${r.packages}</b> уп.</td>
+      <td>${fmtRub(r.priceUnit)} / ${esc(r.unit)}</td>
+      <td class="money">${fmtRub(r.byWeight)}</td>
+      <td class="money">${fmtRub(r.byPack)}</td>
+      <td>${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Глобус</a>` : '—'}</td>`;
+    body.appendChild(tr);
+  });
+}
+function renderFilters() {
+  const catSel = document.getElementById('catFilter'); const existing=catSel.value;
+  const cats = Array.from(new Set(Object.values(DATA.products).map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'ru'));
+  catSel.innerHTML = '<option value="">Все категории</option>' + cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join(''); catSel.value = existing;
+  const mealSel = document.getElementById('recipeMeal'); const ex=mealSel.value;
+  mealSel.innerHTML = '<option value="">Все приёмы пищи</option>' + DATA.mealOrder.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join(''); mealSel.value = ex;
+  const focus = document.getElementById('focusSelect');
+  focus.innerHTML = DATA.dishes.map(d=>`<option value="${esc(d.name)}">${esc(d.name)} · ${esc(d.meal)}</option>`).join(''); focus.value=state.focus;
+}
+function syncFocusSelect() { document.getElementById('focusSelect').value=state.focus; }
+function renderFocus() {
+  const dish = dishMap.get(state.focus) || DATA.dishes[0];
+  document.getElementById('focusImg').style = photoStyle(dish.image);
+  document.getElementById('focusName').textContent = dish.name;
+  document.getElementById('focusComment').textContent = dish.comment || dish.meal;
+  document.getElementById('focusPills').innerHTML = `<span class="pill">${esc(dish.meal)}</span><span class="pill">${dish.time}</span><span class="pill">${fmtRub(dish.cost)} на 3 чел.</span><span class="pill">${dish.kcal} ккал/чел.</span><span class="pill">${fmtNum(dish.protein,0)} г белка/чел.</span>`;
+  document.getElementById('focusIngredients').innerHTML = dish.ingredients.map(i => `<div class="ing"><b>${esc(i.product)}</b>${fmtNum(i.qty,2)} ${esc(i.unit)} · ${fmtRub(i.cost)}</div>`).join('');
+  document.getElementById('focusSteps').innerHTML = dish.steps.map(s => `<li>${esc(s)}</li>`).join('');
+}
+function renderRecipes() {
+  const q = document.getElementById('recipeSearch').value.toLowerCase().trim(); const meal = document.getElementById('recipeMeal').value;
+  const grid = document.getElementById('recipesGrid'); grid.innerHTML = '';
+  DATA.dishes.filter(d => (!meal || d.meal===meal) && (!q || (d.name+' '+d.meal+' '+d.comment+' '+d.ingredients.map(i=>i.product).join(' ')).toLowerCase().includes(q))).forEach(d => {
+    const card = document.createElement('article'); card.className='recipe-card'; card.tabIndex=0;
+    card.innerHTML = `<div class="recipe-img" style="${photoStyle(d.image)}"></div><div class="recipe-body"><div class="eyebrow">${esc(d.meal)}</div><h3>${esc(d.name)}</h3><p>${esc(d.comment||'')}<br><b>${fmtRub(d.cost)}</b> на 3 человека · ${d.time}</p></div>`;
+    card.addEventListener('click',()=>openModal(d.name)); card.addEventListener('keydown',e=>{if(e.key==='Enter') openModal(d.name)});
+    grid.appendChild(card);
+  });
+}
+function openModal(name) {
+  const d = dishMap.get(name); if(!d) return;
+  document.getElementById('modalHero').style = photoStyle(d.image);
+  document.getElementById('modalName').textContent = d.name;
+  document.getElementById('modalPills').innerHTML = `<span class="pill">${esc(d.meal)}</span><span class="pill">${d.time}</span><span class="pill">${fmtRub(d.cost)}</span><span class="pill">${d.kcal} ккал/чел.</span>`;
+  document.getElementById('modalIngredients').innerHTML = d.ingredients.map(i=>`<div class="ing"><b>${esc(i.product)}</b>${fmtNum(i.qty,2)} ${esc(i.unit)} · ${fmtRub(i.cost)}</div>`).join('');
+  document.getElementById('modalSteps').innerHTML = d.steps.map(s=>`<li>${esc(s)}</li>`).join('');
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+function shoppingText() {
+  const t = totals();
+  return ['Список закупки на неделю для 3 человек:', ...t.rows.map(r => `• ${r.product} — ${fmtNum(r.qty,2)} ${r.unit}; купить ${r.packages} уп. (${r.pack}), примерно ${fmtRub(r.byPack)}`), '', `Итого по упаковкам: ${fmtRub(t.packCost)}`].join('\n');
+}
+async function copyShopping() { try { await navigator.clipboard.writeText(shoppingText()); toast('Список закупки скопирован'); } catch(e) { toast('Не удалось скопировать — выделите таблицу вручную'); } }
+function renderSources() { document.getElementById('photoSources').innerHTML = DATA.photoSources.map(s=>`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>`).join(', '); }
+function renderAll() { renderFilters(); renderPlan(); renderKpis(); renderFocus(); renderShopping(); renderRecipes(); renderSources(); }
+load();
+document.getElementById('resetBtn').addEventListener('click',()=>{ state.plan=structuredClone(DATA.defaultPlan); state.focus=state.plan[0].dish; save(); renderAll(); toast('Исходное меню восстановлено'); });
+document.getElementById('focusSelect').addEventListener('change', e=>{ state.focus=e.target.value; save(); renderFocus(); });
+document.getElementById('shopSearch').addEventListener('input', renderShopping);
+document.getElementById('catFilter').addEventListener('change', renderShopping);
+document.getElementById('recipeSearch').addEventListener('input', renderRecipes);
+document.getElementById('recipeMeal').addEventListener('change', renderRecipes);
+document.getElementById('copyBtn').addEventListener('click', copyShopping); document.getElementById('copyBtn2').addEventListener('click', copyShopping);
+document.getElementById('modalClose').addEventListener('click', closeModal); document.getElementById('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); }); document.addEventListener('keydown', e=>{if(e.key==='Escape') closeModal();});
+document.getElementById('themeBtn').addEventListener('click', () => { document.body.classList.toggle('dark'); localStorage.setItem('keynoteMenuDark.v1', document.body.classList.contains('dark')?'1':'0'); document.getElementById('themeBtn').textContent = document.body.classList.contains('dark') ? 'Светлый режим' : 'Тёмный режим'; });
+if(localStorage.getItem('keynoteMenuDark.v1')==='1') { document.body.classList.add('dark'); document.getElementById('themeBtn').textContent='Светлый режим'; }
+renderAll();
+</script>
+</body>
+</html>
